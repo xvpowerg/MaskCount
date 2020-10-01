@@ -24,8 +24,12 @@ func collectPosition(outPositionChan <-chan *obj.Position) {
 	//接收Position
 }
 
+//傳送Position
 func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position) {
-	//傳送Position
+	//加入logger
+	logger, f := utils.GetLogger("QueryLatlng:", "queryLatlng")
+	defer f.Close()
+
 	path := utils.GetPharmacyCsvPath()
 	f, err := os.Open(path)
 	defer f.Close()
@@ -46,7 +50,7 @@ func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position) {
 			Phone: pharmacy[2],
 			Addr:  pharmacy[3],
 		}
-		go queryLatLng(position, inPositionChan)
+		go queryLatLng(position, inPositionChan, logger)
 	}
 
 }
