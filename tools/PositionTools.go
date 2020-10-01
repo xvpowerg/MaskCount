@@ -69,5 +69,7 @@ func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position) {
 		}
 		go queryLatLng(position, inPositionChan, logger)
 	}
+	//因該要所有queryLatLng都做完才close
+	close(inPositionChan)
 
 }
