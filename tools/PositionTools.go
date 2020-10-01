@@ -2,7 +2,10 @@ package tools
 
 import (
 	"encoding/csv"
+	"encoding/json"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"tw.com.maskweb/obj"
@@ -13,15 +16,29 @@ func QueryPharmacyLatLngSaveToJSON() {
 
 	//建立chan
 	positionChan := make(chan *obj.Position)
+	positionArryChan := make(chan []*obj.Position) //用來接收collectPosition 的陣列
 	//收集Position
-	go collectPosition(positionChan)
+	go collectPosition(positionChan, positionArryChan)
 	//產生Position
 	go queryLatlngByPharmacy(positionChan)
+
 	//輸出成JSON
+	positionArry := <-positionArryChan
+	fmt.Println("write to Marshal File...")
+	data, _ := json.Marshal(positionArry)
+	ioutil.WriteFile(utils.GetPositionJsonPath(), data, 0666)
 }
 
-func collectPosition(outPositionChan <-chan *obj.Position) {
-	//接收Position
+//接收Position
+func collectPosition(outPositionChan <-chan *obj.Position,
+	positionChanArray chan<- []*obj.Position) {
+	var positionArry []*obj.Position
+	for positionObj := range outPositionChan {
+		if positionObj != nil {
+			positionArry = append(positionArry, positionObj)
+		}
+	}
+	positionChanArray <- positionArry
 }
 
 //傳送Position
