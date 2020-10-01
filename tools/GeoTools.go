@@ -2,17 +2,17 @@ package tools
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"tw.com.maskweb/obj"
 	"tw.com.maskweb/utils"
 )
 
-func QueryLatLng() {
-	addr := "臺北市北投區石牌路二段111號"
-	jsonURL := utils.GetGeocodingApiUrl(addr)
+func queryLatLng(position *obj.Position,
+	positionChan chan<- *obj.Position) {
+	jsonURL := utils.GetGeocodingApiUrl(position.Addr)
 	//使用Get方式呼叫API
 	res, err := http.Get(jsonURL)
 	if err != nil {
@@ -39,5 +39,7 @@ func QueryLatLng() {
 	//取得location 資訊
 	location := locationMap["location"].(map[string]interface{})
 	//取得lat 與 lng 並強制轉型為float64
-	fmt.Println(location["lat"].(float64), location["lng"].(float64))
+	position.Lat = location["lat"].(float64)
+	position.Lng = location["lng"].(float64)
+	positionChan <- position
 }

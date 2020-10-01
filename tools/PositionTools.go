@@ -2,26 +2,30 @@ package tools
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 	"os"
 
+	"tw.com.maskweb/obj"
 	"tw.com.maskweb/utils"
 )
 
 func QueryPharmacyLatLngSaveToJSON() {
+
+	//建立chan
+	positionChan := make(chan *obj.Position)
 	//收集Position
-	collectPosition()
+	go collectPosition(positionChan)
 	//產生Position
-	queryLatlngByPharmacy()
+	go queryLatlngByPharmacy(positionChan)
 	//輸出成JSON
 }
 
-func collectPosition() {
-
+func collectPosition(outPositionChan <-chan *obj.Position) {
+	//接收Position
 }
 
-func queryLatlngByPharmacy() {
+func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position) {
+	//傳送Position
 	path := utils.GetPharmacyCsvPath()
 	f, err := os.Open(path)
 	defer f.Close()
@@ -35,7 +39,14 @@ func queryLatlngByPharmacy() {
 		if err2 == io.EOF {
 			break
 		}
-		fmt.Println(pharmacy[0] + ":" + pharmacy[1] + ":" + pharmacy[2] + ":" + pharmacy[3])
+
+		position := &obj.Position{
+			ID:    pharmacy[0],
+			Name:  pharmacy[1],
+			Phone: pharmacy[2],
+			Addr:  pharmacy[3],
+		}
+		go queryLatLng(position, inPositionChan)
 	}
 
 }
