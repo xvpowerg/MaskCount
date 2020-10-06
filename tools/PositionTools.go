@@ -8,13 +8,13 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"time"
 
 	"tw.com.maskweb/obj"
 	"tw.com.maskweb/utils"
 )
 
 func QueryPharmacyLatLngSaveToJSON() {
-
 	//建立chan
 	positionChan := make(chan *obj.Position)
 	positionArryChan := make(chan []*obj.Position) //用來接收collectPosition 的陣列
@@ -47,6 +47,7 @@ func collectPosition(outPositionChan <-chan *obj.Position,
 
 //傳送Position
 func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position, wg *sync.WaitGroup) {
+
 	//加入logger
 	logger, f := utils.GetLogger("QueryLatlng:", "queryLatlng")
 	defer f.Close()
@@ -59,6 +60,11 @@ func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position, wg *sync.WaitGro
 	}
 	r := csv.NewReader(f)
 	_, _ = r.Read()
+	const (
+		WAIT_COUNT    uint32 = 50
+		WAIT_DURATION uint8  = 2
+	)
+	var count uint32 = 1
 	for {
 
 		pharmacy, err2 := r.Read()
@@ -66,6 +72,12 @@ func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position, wg *sync.WaitGro
 			break
 		}
 
+		if count%WAIT_COUNT == 0 {
+			fmt.Println("Stop Wait:", count)
+			//暫停2秒
+			time.Sleep(time.Duration(WAIT_DURATION) * time.Second)
+		}
+		count++
 		position := &obj.Position{
 			ID:    pharmacy[0],
 			Name:  pharmacy[1],
@@ -80,4 +92,14 @@ func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position, wg *sync.WaitGro
 	//因該要所有queryLatLng都做完才close
 	close(inPositionChan)
 
+}
+
+func GetPositionList() []*obj.Position {
+	f, _ := ioutil.ReadFile(utils.GetPositionJsonPath())
+	//長度為0 容量為7000 想像7000cc的杯子 沒有裝東西
+	//因為Split 容量不夠會自動擴充 需要計算會浪費效能
+	//又因csv筆數為6871筆 所以給Split預設容量為7000
+	positionList := make([]*obj.Position, 0, 7000)
+	json.Unmarshal(f, &positionList)
+	return positionList
 }
