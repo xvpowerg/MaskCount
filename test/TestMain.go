@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	tools.QueryPharmacyLatLngSaveToJSON()
+	tools.CsvToMaskCountMap()
 }
