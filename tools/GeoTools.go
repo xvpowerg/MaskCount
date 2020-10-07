@@ -59,5 +59,6 @@ func queryLatLng(position *obj.Position,
 func Distance(latLng1 *obj.LatLng, latLng2 *obj.LatLng) float64 {
 	p1 := geo.NewPoint(latLng1.Lat, latLng1.Lng)
 	p2 := geo.NewPoint(latLng2.Lat, latLng2.Lng)
+	//單位公里
 	return p1.GreatCircleDistance(p2)
 }
