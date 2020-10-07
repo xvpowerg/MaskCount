@@ -7,16 +7,20 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"tw.com.maskweb/obj"
+	"tw.com.maskweb/utils"
 )
 
-func CsvToMaskCountMap() {
-	csvURL := "http://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"
+func CsvToMaskCountMap() map[string]*obj.MaskCount {
+	csvURL := utils.MASK_COUNT_CSV_URL
 	//下載
 	res, err := http.Get(csvURL)
 	if err != nil || res == nil {
 		log.Println(err)
-		return
+		return nil
 	}
+	maskCountMap := make(map[string]*obj.MaskCount)
 	//注意要關閉 不然會占用TCPIP數量
 	defer res.Body.Close()
 	//讀取
@@ -30,6 +34,6 @@ func CsvToMaskCountMap() {
 			break
 		}
 		fmt.Println(value[0], value[1], value[2], value[3], value[4], value[5], value[6])
-
 	}
+	return maskCountMap
 }

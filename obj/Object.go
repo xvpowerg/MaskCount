@@ -8,7 +8,6 @@ type Position struct {
 	Lat   float64
 	Lng   float64
 }
-
 type MaskCount struct {
 	ID         string
 	Name       string
