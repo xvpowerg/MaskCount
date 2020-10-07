@@ -1,6 +1,12 @@
 package main
 
-func main() {
-	//maskmap := tools.CsvToMaskCountMap()
+import (
+	"fmt"
 
+	"tw.com.maskweb/tools"
+)
+
+func main() {
+	maskmap := tools.CsvToMaskCountMap()
+	fmt.Println(maskmap)
 }

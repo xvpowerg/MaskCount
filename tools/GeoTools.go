@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	geo "gopkg.in/Billups/golang-geo.v2"
 	"tw.com.maskweb/obj"
 	"tw.com.maskweb/utils"
 )
@@ -54,4 +55,9 @@ func queryLatLng(position *obj.Position,
 	position.Lat = location["lat"].(float64)
 	position.Lng = location["lng"].(float64)
 	positionChan <- position
+}
+func Distance(latLng1 *obj.LatLng, latLng2 *obj.LatLng) float64 {
+	p1 := geo.NewPoint(latLng1.Lat, latLng1.Lng)
+	p2 := geo.NewPoint(latLng2.Lat, latLng2.Lng)
+	return p1.GreatCircleDistance(p2)
 }

@@ -17,3 +17,8 @@ type MaskCount struct {
 	Ahild      int
 	UpdateTime string
 }
+
+type LatLng struct {
+	Lat float64
+	Lng float64
+}
