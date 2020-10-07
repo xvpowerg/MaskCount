@@ -3,10 +3,10 @@ package tools
 import (
 	"bufio"
 	"encoding/csv"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"tw.com.maskweb/obj"
 	"tw.com.maskweb/utils"
@@ -33,7 +33,31 @@ func CsvToMaskCountMap() map[string]*obj.MaskCount {
 		if err == io.EOF {
 			break
 		}
-		fmt.Println(value[0], value[1], value[2], value[3], value[4], value[5], value[6])
+
+		//Atoi 字串轉整數
+
+		//成人口罩數量
+		adult, e1 := strconv.Atoi(value[4])
+		//兒童口罩數量
+		ahild, e2 := strconv.Atoi(value[5])
+		updateTime := value[6]
+		//如果字串轉整數錯誤就將口罩數量設為0
+		if e1 != nil {
+			adult = 0
+		}
+		if e2 != nil {
+			ahild = 0
+		}
+		//建立MaskCount物件
+		maskCount := &obj.MaskCount{ID: value[0],
+			Name:       value[1],
+			Addr:       value[2],
+			Phone:      value[3],
+			Adult:      adult,
+			Ahild:      ahild,
+			UpdateTime: updateTime}
+
+		maskCountMap[maskCount.ID] = maskCount
 	}
 	return maskCountMap
 }
