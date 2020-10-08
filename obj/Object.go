@@ -22,3 +22,10 @@ type LatLng struct {
 	Lat float64
 	Lng float64
 }
+
+//使用嵌入Embed
+type Mask struct {
+	*Position
+	*MaskCount
+	Distance float64
+}

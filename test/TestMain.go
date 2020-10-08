@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
-	maskmap := tools.CsvToMaskCountMap()
-	fmt.Println(maskmap)
+	pList := tools.GetPositionList()
+	list := tools.LoadingMaskList(pList, nil)
+	fmt.Println(list[0])
 }
