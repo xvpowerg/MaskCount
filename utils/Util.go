@@ -20,7 +20,26 @@ const (
 	POSITION_JSON_FILE string = "position.json"
 	//log路徑
 	LOG_PATH string = "log"
+	//新增not_found_pharmacy json的路徑
+	NOT_FOUND_PHARMACY_FILE_NAME string = "not_found_pharmacy"
 )
+
+//取得不存在於position的藥局存檔路徑
+func GetNotFoundPharmacySaveJsonPath() string {
+	tmpLogName := fmt.Sprintf("%s%s.json",
+		NOT_FOUND_PHARMACY_FILE_NAME,
+		time.Now().Format("-2006-01-02"))
+	return filepath.Join(getAssetPath(), tmpLogName)
+}
+
+//測試NotFoundPharmacyJson檔案是否存在
+func NotFoundPharmacyJsonExist() bool {
+	_, err := os.Stat(GetNotFoundPharmacySaveJsonPath())
+	if err != nil && os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
 
 //取得GeocodingApi網址
 func GetGeocodingApiUrl(address string) string {

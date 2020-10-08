@@ -1,9 +1,12 @@
 package tools
 
 import (
-	"fmt"
+	"bufio"
+	"encoding/json"
+	"os"
 
 	"tw.com.maskweb/obj"
+	"tw.com.maskweb/utils"
 )
 
 func LoadingMaskList(positionList []*obj.Position, latlonP1 *obj.LatLng) []*obj.Mask {
@@ -41,6 +44,18 @@ func LoadingMaskList(positionList []*obj.Position, latlonP1 *obj.LatLng) []*obj.
 
 	}
 
-	fmt.Println(len(maskCountMap))
+	if len(maskCountMap) != 0 && !utils.NotFoundPharmacyJsonExist() {
+		saveNotFoundMaskCountMap(maskCountMap)
+	}
 	return result
+}
+
+func saveNotFoundMaskCountMap(maskCountMap map[string]*obj.MaskCount) {
+	f, _ := os.OpenFile(utils.GetNotFoundPharmacySaveJsonPath(),
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	w := bufio.NewWriter(f)
+	defer f.Close()
+	b, _ := json.Marshal(maskCountMap)
+	w.Write(b)
+	w.Flush()
 }
