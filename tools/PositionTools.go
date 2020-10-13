@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -35,19 +36,67 @@ func QueryPharmacyLatLngSaveToJSON() {
 //接收Position
 func collectPosition(outPositionChan <-chan *obj.Position,
 	positionChanArray chan<- []*obj.Position, wg *sync.WaitGroup) {
-	var positionArry []*obj.Position
+	var positionArray []*obj.Position
 	for positionObj := range outPositionChan {
 		if positionObj != nil {
-			positionArry = append(positionArry, positionObj)
+			positionArray = append(positionArray, positionObj)
 		}
 		wg.Done()
 	}
-	positionChanArray <- positionArry
+	positionChanArray <- positionArray
+}
+
+//查詢不存在於position.json檔案內藥局的經緯度
+func QueryNotFoundPharmacyLatLngSaveToJSON() {
+	latlngChan := make(chan *obj.Position)        //用來接收queryLatLngByPharmacy
+	latlngArrayChan := make(chan []*obj.Position) //傳送Position
+	var wg sync.WaitGroup
+	//收集經緯度資訊
+	go collectPosition(latlngChan, latlngArrayChan, &wg)
+	//查詢經緯度
+	go queryLatLngByNotFoundPharmacy(latlngChan, &wg)
+
+	latlngArray := <-latlngArrayChan
+	fmt.Println("write to QueryNotFoundPharmacyLatLngSaveToJSON File...")
+	data, _ := json.Marshal(latlngArray)
+	ioutil.WriteFile(utils.GetNotFoundPharmacyLatLngJsonPath(), data, 0666)
+}
+
+//使用not_found_pharmacy.json 查詢經緯度
+func queryLatLngByNotFoundPharmacy(inPositionChan chan<- *obj.Position,
+	wg *sync.WaitGroup) {
+	//加入logger
+	logger, logf := utils.GetLogger("QueryLatlng:", "queryLatlng")
+	defer logf.Close()
+	//讀入not_found_pharmacy.json
+	jsonf, err := ioutil.ReadFile(utils.GetNotFoundPharmacyJsonPath())
+	if err != nil {
+		log.Println("error:", err)
+		return
+	}
+	var maskMap map[string]*obj.MaskCount
+	//JSON 轉map
+	json.Unmarshal(jsonf, &maskMap)
+	for _, v := range maskMap {
+		wg.Add(1)
+		//將maskMap 轉換為Position
+		position := &obj.Position{
+			ID:    v.ID,
+			Name:  v.Name,
+			Phone: v.Phone,
+			Addr:  v.Addr,
+			Lat:   0,
+			Lng:   0,
+		}
+		//呼叫GeoAPI 查經緯度
+		go queryLatLng(position, inPositionChan, logger)
+	}
+	wg.Wait()
+	close(inPositionChan)
 }
 
 //傳送Position
 func queryLatlngByPharmacy(inPositionChan chan<- *obj.Position, wg *sync.WaitGroup) {
-
 	//加入logger
 	logger, f := utils.GetLogger("QueryLatlng:", "queryLatlng")
 	defer f.Close()

@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"os"
+	"sort"
+	"strings"
 
 	"tw.com.maskweb/obj"
 	"tw.com.maskweb/utils"
@@ -58,4 +60,25 @@ func saveNotFoundMaskCountMap(maskCountMap map[string]*obj.MaskCount) {
 	b, _ := json.Marshal(maskCountMap)
 	w.Write(b)
 	w.Flush()
+}
+
+//SearchByAddress 依地址查詢販賣口罩藥局
+func SearchByAddress(addr string, maskList []*obj.Mask) []*obj.Mask {
+	var result []*obj.Mask
+	for _, maskObj := range maskList {
+		index := strings.Index(maskObj.Position.Addr, addr)
+		if index > -1 {
+			result = append(result, maskObj)
+		}
+	}
+	return result
+}
+
+//SortByDistance 依藥局距離排序近到遠
+func SortByDistance(count int, result []*obj.Mask) []*obj.Mask {
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].Distance < result[j].Distance
+	})
+	//只取前count筆
+	return result[0:count]
 }

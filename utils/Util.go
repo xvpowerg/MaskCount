@@ -22,7 +22,18 @@ const (
 	LOG_PATH string = "log"
 	//新增not_found_pharmacy json的路徑
 	NOT_FOUND_PHARMACY_FILE_NAME string = "not_found_pharmacy"
+
+	//not_found_pharmacy經緯度的json檔名稱
+	NOT_FOUND_PHARMACY_LATLNG_FILE string = "not_found_pharmacy_latlng.json"
 )
+
+func GetNotFoundPharmacyJsonPath() string {
+	return filepath.Join(getAssetPath(), NOT_FOUND_PHARMACY_FILE_NAME+".json")
+}
+
+func GetNotFoundPharmacyLatLngJsonPath() string {
+	return filepath.Join(getAssetPath(), NOT_FOUND_PHARMACY_LATLNG_FILE)
+}
 
 //取得不存在於position的藥局存檔路徑
 func GetNotFoundPharmacySaveJsonPath() string {
