@@ -13,7 +13,7 @@ const (
 	ROOT               string = `C:\MyFile\OnlineClass\it360\Golang\MaskCountWeb`
 	ASSET_PATH         string = "asset"
 	PHARMACY_CSV_FILE  string = "pharmacy.csv"
-	API_KEY            string = "AIzaSyBwjP1wROzaTDQwq1hDceP2x9v2L_7C27I"
+	API_KEY            string = ""
 	GEOCODING_API_URI  string = "https://maps.googleapis.com/maps/api/geocode/json?key=%s&address=%s"
 	MASK_COUNT_CSV_URL string = "http://data.nhi.gov.tw/Datasets/Download.ashx?rid=A21030000I-D50001-001&l=https://data.nhi.gov.tw/resource/mask/maskdata.csv"
 	//position json檔
